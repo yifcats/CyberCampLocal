@@ -1,2 +1,7 @@
-This is a git repo
+This repository is for performing SYN flooding and Port Scanning Attacks which will be detected.
 
+Clone The repository
+
+run: 
+pip3 install -r requirements.txt 
+This will insure you have all dependencies
