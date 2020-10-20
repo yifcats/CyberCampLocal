@@ -57,8 +57,6 @@ class Port_Scan:
 
             packet = sr1(IP(dst=dst_ip) / UDP(sport=src_port,dport=self.port),timeout=10,verbose=0)
 
-            # print(str(type(packet)))
-
             if (str(type(packet)) == "<class 'NoneType'>"):
                 print(str(self.port) + "/UDP \t Open|Filtered")
 
