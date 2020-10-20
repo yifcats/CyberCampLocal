@@ -40,7 +40,7 @@ class Port_Scan:
 
             packet = sr1(IP(dst=dst_ip) / TCP(sport=src_port,dport=self.port, flags=flaging), timeout=0.001,verbose=0)
 
-            print(packet[TCP].flag=="<class 'NoneType'>")
+            # print(packet[TCP].flag=="<class 'NoneType'>")
 
             if (str(type(packet)) == "<class 'NoneType'>"):
                 print(str(self.port)+"/tpc \t Open|Filtered")
@@ -77,11 +77,15 @@ def UserInterp():
 
         if scan_choice in list(scan_list):
             while True:
-                min_P=int(input("Enter Valid min port number: "))
-                max_P=int(input("Enter Valid max port number: "))
 
-                if min_P>0 and min_P<max_P and min_P<65536:
-                    break
+                try:
+                    min_P = int(input("Enter Valid min port number: "))
+                    max_P = int(input("Enter Valid max port number: "))
+                    if (min_P)>0 and (min_P)<(max_P) and (min_P)<65536:
+                        break
+                except:
+                    continue
+
             break
 
     return scan_choice,[ x for x in range(min_P, max_P) ]

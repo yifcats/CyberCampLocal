@@ -32,10 +32,10 @@ def packet_handler(pkt):
     time=datetime.datetime.now()
     print_log(pkt,time)
 
-    if pkt.haslayer(TCP):
-        F=pkt['TCP'].flags
-        s_com1,sa_com1,a_com1,r_com1,fpu_COM1,null_com1=pack_sorter_TCP(pkt,F)
 
+    s_com1,sa_com1,a_com1,r_com1,fpu_COM1,null_com1=pack_sorter_TCP(pkt)
+
+    if pkt.haslayer(TCP):
         syn_detection(s_com1,sa_com1,a_com1,time)
     # port_scan_detection(pkt)
 
@@ -119,14 +119,35 @@ class Sorting_Packets:
         self.flag = []
         self.src_port = []
         self.des_port = []
-    def pack_data_TPC(self,pkt):
-        self.seq_num.append(pkt[TCP].seq)
-        self.ack_num.append(pkt[TCP].ack)
-        self.flag.append(pkt[TCP].flags)
-        self.src_port.append(pkt[TCP].sport)
-        self.des_port.append(pkt[TCP].dport)
+        self.icmp_type= []
+    def pack_data_TPC(self,pkt,TypePack):
 
-        return self.seq_num, self.ack_num, self.flag, self.src_port,self.des_port
+
+        print(TypePack)
+        if TypePack.haslayer(TPC):
+            self.seq_num.append(pkt[TypePack].seq)
+            self.ack_num.append(pkt[TypePack].ack)
+            self.flag.append(pkt[TypePack].flags)
+            self.src_port.append(pkt[TypePack].sport)
+            self.des_port.append(pkt[TypePack].dport)
+            self.imcp_type.append([])
+        elif TypePack.haslayer(UDP):
+            self.seq_num.append([])
+            self.ack_num.append([])
+            self.flag.append([])
+            self.src_port.append(pkt[TypePack].sport)
+            self.des_port.append(pkt[TypePack].dport)
+            self.imcp_type.append([])
+        elif TypePack.haslayer(ICMP):
+            self.seq_num.append([])
+            self.ack_num.append([])
+            self.flag.append([])
+            self.src_port.append(pkt[TypePack].sport)
+            self.des_port.append(pkt[TypePack].dport)
+            self.imcp_type.append(pkt[TypePack].type)
+            self.imcp_code.append(pkt[TypePack].code)
+
+        return self.seq_num, self.ack_num, self.flag, self.src_port,self.des_port,self.imcp_type,self.imcp_code
 
 s_com=Sorting_Packets()
 sa_com=Sorting_Packets()
@@ -136,35 +157,62 @@ fpu_com=Sorting_Packets()
 s_com=Sorting_Packets()
 null_com=Sorting_Packets()
 
+udp_com=Sorting_Packets()
+icmp_com=Sorting_Packets()
 
 
-def pack_sorter_TCP(pkt,F):
-    if F == 0x02 and F != 0x10:
-        s_com.pack_data_TPC(pkt)
-        # print("seq: " + str(s_com.seq_num) + str(s_com.flag))
-        # print("ack: " + str(s_com.ack_num) + str(s_com.flag))
+def pack_sorter_TCP(pkt):
+    if pkt.haslayer(TCP):
+        F=pkt['TCP'].flags
+        if F == 0x02 and F != 0x10:
+            print(pkt.summary())
 
-    elif F == 0x12:
-        sa_com.pack_data_TPC(pkt)
-        # print("seq: " + str(sa_com.seq_num) + str(sa_com.flag))
-        # print("ack: " + str(sa_com.ack_num) + str(sa_com.flag))
+            s_com.pack_data_TPC(pkt,'TPC')
+            # print("seq: " + str(s_com.seq_num) + str(s_com.flag))
+            # print("ack: " + str(s_com.ack_num) + str(s_com.flag))
 
-    elif F == 0x10:
-        a_com.pack_data_TPC(pkt)
-        # print("seq: " + str(a_com.seq_num) + str(a_com.flag))
-        # print("ack: " + str(a_com.ack_num) + str(a_com.flag))
-        # print(a_com.seq_num)
-    elif F == 0x4: # rst TPC_sS
-        r_com.pack_data_TPC(pkt)
-        # print(r_com.seq_num)
+        elif F == 0x12:
+            print(pkt.summary())
 
-    elif F == 0x29: # FPU TPC_sX
-        fpu_com.pack_data_TPC(pkt)
-    elif F == "":
-        null_com.pack_data_TPC(pkt)
+            sa_com.pack_data_TPC(pkt,'TPC')
+            # print("seq: " + str(sa_com.seq_num) + str(sa_com.flag))
+            # print("ack: " + str(sa_com.ack_num) + str(sa_com.flag))
+
+        elif F == 0x10:
+            print(pkt.summary())
+
+            a_com.pack_data_TPC(pkt,'TPC')
+            # print("seq: " + str(a_com.seq_num) + str(a_com.flag))
+            # print("ack: " + str(a_com.ack_num) + str(a_com.flag))
+            # print(a_com.seq_num)
+        elif F == 0x4: # rst TPC_sS
+            print(pkt.summary())
+
+            r_com.pack_data_TPC(pkt,'TPC')
+            # print(r_com.seq_num)
+
+        elif F == 0x29: # FPU TPC_sX
+            print(pkt.summary())
+
+            fpu_com.pack_data_TPC(pkt,'TPC')
+        elif F == "":
+            print(pkt.summary())
+
+            null_com.pack_data_TPC(pkt,'TPC')
 
 
-    return s_com,sa_com,a_com,r_com,fpu_com,null_com
+
+    elif pkt.haslayer(UDP):
+        print(pkt.summary())
+
+        udp_com.pack_data_TPC(pkt,UDP)
+
+    elif pkt.haslayer(ICMP):
+        print(pkt.summary())
+
+        icmp_com.pack_data_TPC(pkt,'ICMP')
+
+    return s_com,sa_com,a_com,r_com,fpu_com,null_com,udp_com,icmp_com
 
 
 # s_com=[]
