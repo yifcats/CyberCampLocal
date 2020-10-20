@@ -1,5 +1,4 @@
 #! /usr/bin/python
-import os
 from scapy.all import *
 from scapy.layers.inet import TCP
 import datetime
@@ -7,7 +6,7 @@ from time import sleep
 import logging
 from threading import Thread, Event
 
-
+# This script is used to preform detection for SYN floods and port scans attacks.
 
 # Function requesting to user to Enter a valid Interface available from a list.
 def which_interface():
@@ -105,13 +104,13 @@ class Identification(Thread):
     # Function used to check all port scan attack methods described above. (TCP sS, sX, SN and UDP sU)
     def port_scan_detection(self,pkt,s_com,sa_com,a_com,r_com,fpu_com,null_com,udp_com,icmp_com,time):
 
-        self.port_check(s_com.des_port,sa_com.des_port,[],time,'TCP sS')
+        self.port_check(s_com.des_port,sa_com.des_port,[],time,'[TCP -sS]')
 
-        self.port_check(fpu_com.des_port, r_com.des_port, icmp_com.icmp_code, time, 'TCP sX')
+        self.port_check(fpu_com.des_port, r_com.des_port, icmp_com.icmp_code, time, '[TCP -sX]')
 
-        self.port_check(null_com.des_port, r_com.des_port, icmp_com.icmp_code, time, 'TCP sN')
+        self.port_check(null_com.des_port, r_com.des_port, icmp_com.icmp_code, time, '[TCP -sN]')
 
-        self.port_check(udp_com.des_port, r_com.des_port, icmp_com.icmp_code, time, 'UDP sU')
+        self.port_check(udp_com.des_port, r_com.des_port, icmp_com.icmp_code, time, '[UDP sU]')
 
     # Checks if conditions are violated to determine if is port scanning attacks.
     def port_check(self,sentP, recive1P, recive2P, time, TypeScan):
@@ -126,12 +125,12 @@ class Identification(Thread):
 
                     print(str("[") + str(time) + str("]") + "\t" + "Limit Exceeded, {} Scaninig detected".format(
                         TypeScan))
-                    logging.warning(
+                    logging.critical(
                         str("[") + str(time) + str("]") + "\t" + "Limit Exceeded, {} Port Scaninig detected".format(
                             TypeScan))
 
                 else:
-                    print("Potential Port Scaninig detected")
+                    logging.warning("Potential Port Scaninig detected")
         else:
             print(str("[") + str(time) + str("]") + "\t" + "No Port scanning for {}".format(TypeScan))
 
@@ -164,10 +163,10 @@ class Identification(Thread):
                 else:
                     if self.check3:  # Aimed SYN attack at specific port
                         if len(s_com.seq_num) > len(a_com.seq_num) + self.limit:
-                            logging.warning(str("[") + str(time) + str("]") + "\t"+ "Limit Exceeded, SYN Flooding detected")
+                            logging.critical(str("[") + str(time) + str("]") + "\t"+ "Limit Exceeded, SYN Flooding detected")
                             print(str("[") + str(time) + str("]") + "\t"+ "Limit Exceeded, SYN Flooding detected")
                         else:
-                            # logging.warning(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: SYN overflow SYN > ACK")
+                            logging.warning(str("[") + str(time) + str("]") + "\t"+ "SYN overflow SYN > ACK")
                             print(str("[") + str(time) + str("]") + "\t"+ "Potential SYN overflow SYN > ACK")
             else:
                 logging.warning(str("[") + str(time) + str("]")+ "\t"+ "Communication Issues: SYN Not RECV")
@@ -224,7 +223,7 @@ class Sorting_Packets:
 
 def print_log(pkt,time):  # logging all TCP, UDP and ICMP communication
     if pkt.haslayer(TCP):
-        logging.info(str("[") + str(time) + str("]") + "\t" + "TCP:{}".format(name_pkt) + " Bytes" + \
+        logging.info(str("[") + str(time) + str("]") + "\t" + "TCP:{}".format(len(pkt[TCP])) + " Bytes" + \
                      "\t" + "SRC-PORT:" + str(pkt.sport) + " " + "DST-PORT:" + str(pkt.dport) + \
                      "\t" + "IP-Version:" + str(pkt[IP].version) + " " + "SRC-IP:" + str(pkt[IP].src) + \
                      " " + "DST-IP:" + str(pkt[IP].dst) + \
@@ -239,7 +238,7 @@ def print_log(pkt,time):  # logging all TCP, UDP and ICMP communication
                      "\t" + "SRC-MAC:" + str(pkt.src) + " " + "DST-MAC:" + str(pkt.dst))
 
     if pkt.haslayer(ICMP):
-        logging.info(str("[") + str(time) + str("]") + "\t" + "ICMP:{}".format(name_pkt) + " Bytes" + \
+        logging.info(str("[") + str(time) + str("]") + "\t" + "ICMP:{}".format(len(pkt[ICMP])) + " Bytes" + \
                      "\t" + "IP-Version:" + str(pkt[IP].version) + " " + "SRC-IP:" + str(
             pkt[IP].src) + " " + "DST-IP:" + str(pkt[IP].dst) + \
                      "\t" + "SRC-MAC:" + str(pkt.src) + " " + "DST-MAC:" + str(pkt.dst))
