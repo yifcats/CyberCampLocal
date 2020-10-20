@@ -3,6 +3,7 @@ This repository is for performing SYN flooding and Port Scanning Attacks which w
 The attacks will be aimed at the metasploitable VM from the kali VM for the sake of the proof of concept
 Both VM must be turned on!
 
+insure that metasploitable has IP of 10.0.2.19
 
 #######################################################################################
 
@@ -22,7 +23,19 @@ This will insure that the kernel does not automatically return a RST a packet in
 which it did not initially create since we are using scapy this is necessary to preform SYN floods and port scanning.
 
 #######################################################################################
+Running Methods:
 
+Port scan attack proof of concept:
+# python3 Detection.py     ## run this in the terminal
+# python3 SYN_attack_1.py  ## on other terminal run this
+
+SYN Flood proof of concept:
+# python3 Detection.py     ## run this in the terminal
+# python3 SYN_attack_1.py  ## on other terminal run this
+
+Stop both jobs before changing the attack.
+
+#######################################################################################
 Detection File:
 The Detection file will be used to identify when an attack occurs, it logs all TCP, UDP and ICMP traffic information
 along with warnings and critical alerts in a file named sniff1.log which is saved in the working directory.
