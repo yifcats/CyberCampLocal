@@ -27,6 +27,7 @@ class Port_Scan:
 
     def TPC_sS(self,ports):
         for self.port in ports:
+            # src_port=RandShort()
             packet = sr1(IP(dst=dst_ip)/TCP(sport=src_port,dport=self.port,flags="S"),timeout=0.05,verbose=0)
 
             if (packet.haslayer(TCP)) and (packet.getlayer(TCP).flags == 0x12):

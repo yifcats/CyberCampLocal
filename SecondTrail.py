@@ -35,9 +35,10 @@ def packet_handler(pkt):
 
     s_com1,sa_com1,a_com1,r_com1,fpu_COM1,null_com1,udp_com1,icmp_com1=pack_sorter_TCP(pkt)
 
-    if pkt.haslayer(TCP):
-        syn_detection(s_com1,sa_com1,a_com1,r_com1,time)
-    # port_scan_detection(pkt)
+    # if pkt.haslayer(TCP):
+    #     syn_detection(s_com1,sa_com1,a_com1,r_com1,time)
+
+    port_scan_detection(pkt,s_com1,sa_com1,a_com1,r_com1,fpu_COM1,null_com1,udp_com1,icmp_com1,time)
 
 
 def print_log(pkt,time):
@@ -68,19 +69,39 @@ def print_log(pkt,time):
 
 
 
-def port_scan_detection(pkt):
-    udp_P = [x for x in range(0, 65535)]
-    tcp_P = [x for x in range(0, 65535)]
+def port_scan_detection(pkt,s_com,sa_com,a_com,r_com,fpu_com,null_com,udp_com,icmp_com,time):
+    # udp_P = [x for x in range(0, 65535)]
+    # tcp_P = [x for x in range(0, 65535)]
+
+    # print(len(r_com.des_port))
+    if len(s_com.seq_num) != 0 and len(r_com.des_port):
+
+        New=[x+1 for x in s_com.seq_num]
+        check1_sS=set(New).issubset(sa_com.ack_num) # is s_com +1 in sa_com
 
 
-    if TCP in pkt and pkt[TCP].dport in tcp_P:
-        return True
-    elif UDP in pkt and pkt[UDP].dport in udp_P:
-        return True
-    elif ICMP in pkt:
-        return True
-    else:
-        return False
+        common_port=max(set(s_com.des_port), key=s_com.des_port.count)
+
+        # if check1_sS:
+            # print(str("[")+str(time) + str("]") + "\t"+ "Check 1 complete: communication secsessful")
+        if 0.01 > (s_com.des_port.count(common_port)/ len(s_com.des_port)):
+            print()
+            if (len(r_com.src_port)/len(s_com.src_port) > 0.7) or check1_sS:
+                print(str("[") + str(time) + str("]") + "\t" + "Limit Exceeded, Port Scaninig detected")
+                logging.warning(str("[") + str(time) + str("]") + "\t" + "Limit Exceeded, Port Scaninig detected")
+            else:
+                print("Port Scaninig detected potential")
+        else:
+            print(str("[") + str(time) + str("]") + "\t" + "No Port scanning")
+
+    # if TCP in pkt and pkt[TCP].dport in tcp_P:
+    #     return True
+    # elif UDP in pkt and pkt[UDP].dport in udp_P:
+    #     return True
+    # elif ICMP in pkt:
+    #     return True
+    # else:
+    #     return False
 
 
 def syn_detection(s_com,sa_com,a_com,r_com,time):
