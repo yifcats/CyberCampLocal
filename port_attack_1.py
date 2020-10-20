@@ -1,16 +1,16 @@
 #! /usr/bin/python
 from scapy.all import *
 
-# This script preforms a Port scan attacks.
+# This script performs Port scan attacks.
 
-dst_ip = "10.0.2.19"  # metasploitable victim to port scaning
+dst_ip = "10.0.2.19"  # metasploitable victim to port scanning
 src_port = RandShort()  # Random source port
 
 # Class for Port scan attacks 
 # TCP stealth (sS), 2 TCP XMAS (sX), 3 TCP Null (sN) and 4 UDP (sU) scans.
 class Port_Scan:
 
-    def scan_menu(self,scanner,ports,scan_list):  # parsing the user entery for the type of port scan
+    def scan_menu(self,scanner,ports,scan_list):  # parsing the user entry for the type of port scan
         if scanner == scan_list[0]:
             Scan.TCP_sS(ports)
         elif scanner == scan_list[1]:
@@ -20,29 +20,29 @@ class Port_Scan:
         elif scanner == scan_list[3]:
             Scan.UDP_U(ports)
 
-    def TCP_sS(self,ports):  # preforming TPC stealth scan
-        for self.port in ports:  # Looping for all ports in the range of user entery
+    def TCP_sS(self,ports):  # performing TPC stealth scan
+        for self.port in ports:  # Looping for all ports in the range of user entry
 
             try:
-                packet = sr1(IP(dst=dst_ip)/TCP(sport=src_port,dport=self.port,flags="S"),timeout=0.05,verbose=0)
+                packet = sr1(IP(dst=dst_ip)/TCP(sport=src_port,dport=self.port,flags="S"),timeout=3,verbose=0)
             except Exception as e:
                 print(e)
 
             if (packet.haslayer(TCP)) and (packet.getlayer(TCP).flags == 0x12):  # if TCP layer and ACK-SYN flag
                 # Sending a RST back to the victim port to stop communication.
                 try:
-                    send_rst = sr1(IP(dst=dst_ip)/TCP(sport=src_port,dport=self.port,flags="R"),timeout=0.05,verbose=0)
+                    send_rst = sr1(IP(dst=dst_ip)/TCP(sport=src_port,dport=self.port,flags="R"),timeout=3,verbose=0)
                 except Exception as e:
                     print(e)
                 print(str(self.port)+"/tpc \t Open")
 
 
-    def TCP_sX_sN(self,ports,flaging): # preforming TPC sX or sN
+    def TCP_sX_sN(self,ports,flaging): # performing TPC sX or sN
 
         for self.port in ports:
             # sending a TPC packet with either a FPU or Null flag
             try:
-                packet = sr1(IP(dst=dst_ip) / TCP(sport=src_port,dport=self.port, flags=flaging), timeout=0.001,verbose=0)
+                packet = sr1(IP(dst=dst_ip) / TCP(sport=src_port,dport=self.port, flags=flaging), timeout=10,verbose=0)
             except Exception as e:
                 print(e)
 
@@ -53,7 +53,7 @@ class Port_Scan:
                 if (int(packet.getlayer(ICMP).type) == 3 and int(packet.getlayer(ICMP).code) in [1, 2, 3, 9, 10, 13]):
                     print(str(self.port) + "/tpc \t Filtered")
 
-    def UDP_U(self, ports):  # preforming UDP sU
+    def UDP_U(self, ports):  # performing UDP sU
         for self.port in ports:
 
             # Sending a udp paket
@@ -94,11 +94,11 @@ def UserInterp(scan_list):
 
     return scan_choice,[ x for x in range(min_P, max_P) ]  # returning scan method and port range to attack
 
-Scan = Port_Scan()  # initilising port scan attack
+Scan = Port_Scan()  # initialising port scan attack
 def main():
     scan_list = ("TCP_sS", "TCP_sX", 'TCP_sN', 'UDP_U')
     SC,ports=UserInterp(scan_list)
     Scan.scan_menu(SC,ports,scan_list)  # Outputting the open ports
 
-if __name__== "__main__":  # initilising
+if __name__== "__main__":  # initialising
     main()

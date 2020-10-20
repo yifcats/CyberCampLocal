@@ -3,7 +3,7 @@ from scapy.all import *
 
 # The following is a SYN Flood attack on http port of metasploitable
 
-metasploitable_IP="10.0.2.19"  # taget IP address, victim of SYN flood
+metasploitable_IP="10.0.2.19"  # target IP address, victim of SYN flood
 target_port=80  # attacking the http port
 
 try:

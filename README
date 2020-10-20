@@ -1,7 +1,54 @@
 This repository is for performing SYN flooding and Port Scanning Attacks which will be detected.
 
-Clone The repository
+The attacks will be aimed at the metasploitable VM from the kali VM for the sake of the proof of concept
+Both VM must be turned on!
 
-run: 
-pip3 install -r requirements.txt 
-This will insure you have all dependencies
+
+#######################################################################################
+
+Installing:
+Clone The repository:
+# git clone https://github.com/yifcats/CyberCampLocal [target directory]
+
+#######################################################################################
+
+In the command line use:
+# pip install -r requirements.txt
+This will install all dependencies
+
+Also use the following command.
+# iptables -A OUTPUT -p tcp --tcp-flags RST RST -s 10.0.2.15 -d 10.0.2.19 -j DROP
+This will insure that the kernel does not automatically return a RST a packet in reasponse to a SYN-ACK
+which it did not initially create since we are using scapy this is necessary to preform SYN floods and port scanning.
+
+#######################################################################################
+
+Detection File:
+The Detection file will be used to identify when an attack occurs, it logs all TCP, UDP and ICMP traffic information
+along with warnings and critical alerts in a file named sniff1.log which is saved in the working directory.
+
+Run:
+# python3 [path]/Detection.py
+
+The user will be prompted to chose an interface to preform the detection and logging.
+To select the user must write one from the list in the command line.
+Once a valid input is entered the script will start sniffing for packets in the specified interface.
+
+#######################################################################################
+
+port_attack_1 File:
+The port_attack_1 file will be used to create a port scanning attack of the form -sS, -sX, -sN and -sU
+(note that -sU is slower and less precise then the other methods)
+
+Run:
+# python3 [path]/Detection.py
+
+The user will be promoted to enter there choice of port scanning methods, "TCP_sS", "TCP_sX", 'TCP_sN', 'UDP_U'
+Select one from the list by typing its name.
+Then the user will be promoted to enter a min and max port which must follow: "0 < min port < max port < 65536"
+The script will then initiate a port scan attack of the chosen method directed at the specified range ports.
+
+#######################################################################################
+
+
+
