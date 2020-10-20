@@ -33,10 +33,10 @@ def packet_handler(pkt):
     print_log(pkt,time)
 
 
-    s_com1,sa_com1,a_com1,r_com1,fpu_COM1,null_com1=pack_sorter_TCP(pkt)
+    s_com1,sa_com1,a_com1,r_com1,fpu_COM1,null_com1,udp_com1,icmp_com1=pack_sorter_TCP(pkt)
 
     if pkt.haslayer(TCP):
-        syn_detection(s_com1,sa_com1,a_com1,time)
+        syn_detection(s_com1,sa_com1,a_com1,r_com1,time)
     # port_scan_detection(pkt)
 
 
@@ -83,28 +83,39 @@ def port_scan_detection(pkt):
         return False
 
 
-def syn_detection(s_com,sa_com,a_com,time):
+def syn_detection(s_com,sa_com,a_com,r_com,time):
     if len(s_com.seq_num) !=0 and len(sa_com.seq_num) !=0:
         # print("seq: " + str(s_com.seq_num) + str(s_com.flag))
         # print("ack: " + str(sa_com.ack_num) + str(sa_com.flag))
 
+
         New=[x+1 for x in s_com.seq_num]
         New2=[x+1 for x in sa_com.seq_num]
 
-        check1=set(New).issubset(sa_com.ack_num)
-        check2=set(New2).issubset(a_com.ack_num)
+        check1=set(New).issubset(sa_com.ack_num) # is s_com +1 in sa_com
+        check2=set(New2).issubset(a_com.ack_num) # is sa_com +1 in a_com
+
+
+
+        # if a great proportion (30%) of the syn packets are heading for the same port 80.
+        if 0.3 < (s_com.des_port.count(80)/len(s_com.des_port)):
+            check3=True
+        else:
+            check3=False
+
 
         if check1:
             print(str("[")+str(time) + str("]") + "\t"+ "Check 1 complete: communication secsessful")
             if check2:
                 print(str("[") + str(time) + str("]") + "\t"+ "Check 2 complete: No SYN Flooding")
             else:
-                if len(s_com.seq_num) > len(a_com.seq_num) + limit:
-                    logging.warning(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: Limit Exceeded, SYN Flooding detected")
-                    print(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: Limit Exceeded, SYN Flooding detected")
-                else:
-                    logging.warning(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: SYN overflow SYN > ACK")
-                    print(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: SYN overflow SYN > ACK")
+                if check3:
+                    if len(s_com.seq_num) > len(a_com.seq_num) + limit:
+                        logging.warning(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: Limit Exceeded, SYN Flooding detected")
+                        print(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: Limit Exceeded, SYN Flooding detected")
+                    else:
+                        logging.warning(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: SYN overflow SYN > ACK")
+                        print(str("[") + str(time) + str("]") + "\t"+ "Check 2 Failed: SYN overflow SYN > ACK")
         else:
             logging.warning(str("[") + str(time) + str("]")+ "\t"+ "Communication Issues: SYN Not RECV")
 
@@ -120,34 +131,38 @@ class Sorting_Packets:
         self.src_port = []
         self.des_port = []
         self.icmp_type= []
-    def pack_data_TPC(self,pkt,TypePack):
+        self.icmp_code=[]
+    def pack_data_TPC(self,pkt):
 
+        if pkt.haslayer(TCP):
+            self.seq_num.append(pkt[TCP].seq)
+            self.ack_num.append(pkt[TCP].ack)
+            self.flag.append(pkt[TCP].flags)
+            self.src_port.append(pkt[TCP].sport)
+            self.des_port.append(pkt[TCP].dport)
+            self.icmp_type.append([])
+            self.icmp_code.append([])
 
-        print(TypePack)
-        if TypePack.haslayer(TPC):
-            self.seq_num.append(pkt[TypePack].seq)
-            self.ack_num.append(pkt[TypePack].ack)
-            self.flag.append(pkt[TypePack].flags)
-            self.src_port.append(pkt[TypePack].sport)
-            self.des_port.append(pkt[TypePack].dport)
-            self.imcp_type.append([])
-        elif TypePack.haslayer(UDP):
+        elif pkt.haslayer(UDP):
             self.seq_num.append([])
             self.ack_num.append([])
             self.flag.append([])
-            self.src_port.append(pkt[TypePack].sport)
-            self.des_port.append(pkt[TypePack].dport)
-            self.imcp_type.append([])
-        elif TypePack.haslayer(ICMP):
+            self.src_port.append(pkt[UDP].sport)
+            self.des_port.append(pkt[UDP].dport)
+            self.icmp_type.append([])
+            self.icmp_code.append([])
+
+
+        elif pkt.haslayer(ICMP):
             self.seq_num.append([])
             self.ack_num.append([])
             self.flag.append([])
-            self.src_port.append(pkt[TypePack].sport)
-            self.des_port.append(pkt[TypePack].dport)
-            self.imcp_type.append(pkt[TypePack].type)
-            self.imcp_code.append(pkt[TypePack].code)
+            self.src_port.append(pkt[UDP].sport)
+            self.des_port.append(pkt[UDP].dport)
+            self.icmp_type.append(pkt[ICMP].type)
+            self.icmp_code.append(pkt[ICMP].code)
 
-        return self.seq_num, self.ack_num, self.flag, self.src_port,self.des_port,self.imcp_type,self.imcp_code
+        return self.seq_num, self.ack_num, self.flag, self.src_port,self.des_port,self.icmp_type,self.icmp_code
 
 s_com=Sorting_Packets()
 sa_com=Sorting_Packets()
@@ -165,52 +180,50 @@ def pack_sorter_TCP(pkt):
     if pkt.haslayer(TCP):
         F=pkt['TCP'].flags
         if F == 0x02 and F != 0x10:
-            print(pkt.summary())
+            # print(pkt.summary())
 
-            s_com.pack_data_TPC(pkt,'TPC')
+            s_com.pack_data_TPC(pkt)
             # print("seq: " + str(s_com.seq_num) + str(s_com.flag))
             # print("ack: " + str(s_com.ack_num) + str(s_com.flag))
 
         elif F == 0x12:
-            print(pkt.summary())
+            # print(pkt.summary())
 
-            sa_com.pack_data_TPC(pkt,'TPC')
+            sa_com.pack_data_TPC(pkt)
             # print("seq: " + str(sa_com.seq_num) + str(sa_com.flag))
             # print("ack: " + str(sa_com.ack_num) + str(sa_com.flag))
 
         elif F == 0x10:
-            print(pkt.summary())
+            # print(pkt.summary())
 
-            a_com.pack_data_TPC(pkt,'TPC')
+            a_com.pack_data_TPC(pkt)
             # print("seq: " + str(a_com.seq_num) + str(a_com.flag))
             # print("ack: " + str(a_com.ack_num) + str(a_com.flag))
             # print(a_com.seq_num)
         elif F == 0x4: # rst TPC_sS
-            print(pkt.summary())
+            # print(pkt.summary())
 
-            r_com.pack_data_TPC(pkt,'TPC')
+            r_com.pack_data_TPC(pkt)
             # print(r_com.seq_num)
 
         elif F == 0x29: # FPU TPC_sX
-            print(pkt.summary())
+            # print(pkt.summary())
 
-            fpu_com.pack_data_TPC(pkt,'TPC')
-        elif F == "":
-            print(pkt.summary())
-
-            null_com.pack_data_TPC(pkt,'TPC')
+            fpu_com.pack_data_TPC(pkt)
+        elif F == 0x00:
+            # print(pkt.summary())
+            null_com.pack_data_TPC(pkt)
 
 
 
     elif pkt.haslayer(UDP):
-        print(pkt.summary())
+        # print(pkt.summary())
 
-        udp_com.pack_data_TPC(pkt,UDP)
+        udp_com.pack_data_TPC(pkt)
 
     elif pkt.haslayer(ICMP):
-        print(pkt.summary())
-
-        icmp_com.pack_data_TPC(pkt,'ICMP')
+        # print(pkt.summary())
+        icmp_com.pack_data_TPC(pkt)
 
     return s_com,sa_com,a_com,r_com,fpu_com,null_com,udp_com,icmp_com
 
