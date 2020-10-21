@@ -67,12 +67,13 @@ class Identification(Thread):
         self.s_com, self.sa_com, self.a_com, self.r_com, self.fpu_COM, \
         self.null_com, self.udp_com, self.icmp_com = self.pack_sorter(pkt)
 
-        if pkt.haslayer(TCP):
-            self.syn_detection(self.s_com, self.sa_com, self.a_com, time)  # SYN flood detection
+        # if pkt.haslayer(TCP):
+        self.syn_detection(self.s_com, self.sa_com, self.a_com, time)  # SYN flood detection
 
         self.port_scan_detection(pkt, self.s_com, self.sa_com, self.a_com, self.r_com, \
                                  self.fpu_COM, self.null_com, self.udp_com, self.icmp_com, time)  # Port scan detection
 
+        print("\n")  # separation between packets
     def pack_sorter(self, pkt):  # sorts the packets by layer and flags
         if pkt.haslayer(TCP):  # for TCP packets
             F = pkt['TCP'].flags
@@ -150,8 +151,6 @@ class Identification(Thread):
 
             self.common_port = max(set(s_com.des_port), key=s_com.des_port.count)  # finding the most common port
 
-            print(self.common_port)
-
             # if a great proportion (30%) of the syn packets are heading for the same port e.g 80.
             if 0.3 < (s_com.des_port.count(self.common_port) / len(s_com.des_port)):
                 self.check3 = True  # indicating potential port scanning
@@ -172,8 +171,12 @@ class Identification(Thread):
                             logging.warning(str("[") + str(time) + str("]") + "\t" + "SYN overflow SYN > ACK")
                             print(str("[") + str(time) + str("]") + "\t" + "Potential SYN overflow SYN > ACK")
             else:
-                logging.warning(str("[") + str(time) + str("]") + "\t" + "Communication Issues: SYN Not RECV")
-                print(str("[") + str(time) + str("]") + "\t" + "Communication Issues: SYN Not RECV")
+                print(str("[") + str(time) + str("]") + "\t" + "No SYN Flooding")
+        else:
+            print(str("[") + str(time) + str("]") + "\t" + "No SYN Flooding")
+
+                # logging.warning(str("[") + str(time) + str("]") + "\t" + "Communication Issues: SYN Not RECV")
+                # print(str("[") + str(time) + str("]") + "\t" + "Communication Issues: SYN Not RECV")
 
 
 # Class allowing the parsing of individual arrays for each object.

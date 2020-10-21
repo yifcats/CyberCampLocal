@@ -58,7 +58,7 @@ class Port_Scan:
 
             # Sending a udp paket
             try:
-                packet = sr1(IP(dst=dst_ip) / UDP(sport=src_port,dport=self.port),timeout=10,verbose=0)
+                packet = sr1(IP(dst=dst_ip) / UDP(sport=src_port,dport=self.port),timeout=15,verbose=0)
             except Exception as e:
                 print(e)
 

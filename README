@@ -1,4 +1,9 @@
-This repository is dedicated to performing SYN flooding and Port Scanning Attacks which will be detected.
+This repository is dedicated to performing SYN flooding and Port Scanning Attacks which will be detected in real time.
+Therefore if an attack takes place it will be indicated by the python script.
+When a sufficent amount of time/packets been passed/sent after the attack the alert will be switched off to show that
+the attack has stopped.
+
+
 The repository should contain 6 files:
 Detection.py, port_attack_1.py, SYN_attack_1.py, README, requirements.txt and sniff1.log
 
@@ -8,24 +13,28 @@ Date Modified: 21/10/2020
 The attacks will be aimed at the metasploitable VM from the kali VM for the sake of the proof of concept
 Both VM must be turned on!
 
-insure that metasploitable has IP of 10.0.2.19
-Log in to kali with root.
+Insure that metasploitable has IP of 10.0.2.19
+Log in to kali Linux with root permission and run all files only with kali.
 
 #######################################################################################
 
-Installing:
+1. Installing:
 Clone The repository:
 # git clone https://github.com/yifcats/CyberCampLocal [target directory]
 
-#######################################################################################
+The target directory should be empty
 
-In the command line use:
+#######################################################################################
+2. In the command line use:
+
 # pip install -r requirements.txt
 This will install all dependencies
 
 Also use the following command.
+
 # iptables -A OUTPUT -p tcp --tcp-flags RST RST -s 10.0.2.15 -d 10.0.2.19 -j DROP
-This will insure that the kernel does not automatically return a RST a packet in reasponse to a SYN-ACK
+
+This will insure that the kernel does not automatically return a RST a packet in response to a SYN-ACK
 which it did not initially create since we are using scapy this is necessary to preform SYN floods and port scanning.
 
 #######################################################################################
@@ -33,13 +42,15 @@ Running Sequences:
 
 Port scan attack proof of concept:
 # python3 [path]/Detection.py     ## run this in shell and chose 'eth0' as the interface
-# python3 [path]SYN_attack_1.py  ## on other shell run this
+# python3 [path]/port_attack_1.py  ## on other shell run this
+(Note making min port <<< max port will allow enough data to make a confirmation that there is port scanning.)
+
 
 Stop both jobs before changing the attack. This can be done with Control + c.
 
 SYN Flood proof of concept:
-# python3 [path]Detection.py     ## run this in the shell and chose 'eth0' as the interface
-# python3 [path]SYN_attack_1.py  ## on other shell run this
+# python3 [path]/Detection.py     ## run this in the shell and chose 'eth0' as the interface
+# python3 [path]/SYN_attack_1.py  ## on other shell run this
 
 #######################################################################################
 Detection File:
