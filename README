@@ -1,9 +1,13 @@
 This repository is for performing SYN flooding and Port Scanning Attacks which will be detected.
 
+Writen by: Yiftach Cats
+Date Modified: 21/10/2020
+
 The attacks will be aimed at the metasploitable VM from the kali VM for the sake of the proof of concept
 Both VM must be turned on!
 
 insure that metasploitable has IP of 10.0.2.19
+Log in to kali with root.
 
 #######################################################################################
 
@@ -23,29 +27,32 @@ This will insure that the kernel does not automatically return a RST a packet in
 which it did not initially create since we are using scapy this is necessary to preform SYN floods and port scanning.
 
 #######################################################################################
-Running Methods:
+Running Sequences:
 
 Port scan attack proof of concept:
-# python3 Detection.py     ## run this in the terminal
-# python3 SYN_attack_1.py  ## on other terminal run this
+# python3 [path]/Detection.py     ## run this in the terminal and chose 'eth0' as the interface
+# python3 [path]SYN_attack_1.py  ## on other terminal run this
+
+Stop both jobs before changing the attack. This can be done with Control + c.
 
 SYN Flood proof of concept:
-# python3 Detection.py     ## run this in the terminal
-# python3 SYN_attack_1.py  ## on other terminal run this
-
-Stop both jobs before changing the attack.
+# python3 [path]Detection.py     ## run this in the terminal and chose 'eth0' as the interface
+# python3 [path]SYN_attack_1.py  ## on other terminal run this
 
 #######################################################################################
 Detection File:
 The Detection file will be used to identify when an attack occurs, it logs all TCP, UDP and ICMP traffic information
 along with warnings and critical alerts in a file named sniff1.log which is saved in the working directory.
 
-Run:
+Running File:
 # python3 [path]/Detection.py
 
 The user will be prompted to chose an interface to preform the detection and logging.
 To select the user must write one from the list in the command line.
-Once a valid input is entered the script will start sniffing for packets in the specified interface.
+Once a valid input is entered the script will start sniffing for packets in the specified interface and will detect a
+SYN floods or a Port scanning attack. There should be nothing printed to the screen as all traffic is directed to the
+sniff1.log, apart from when an attack is initiated. A string indicating if there is port scanning of
+type [TCP -sS], [TCP -sX], [TC -sN] and [UDP -sU] or if there is or isn't SYN Flood.
 
 #######################################################################################
 
@@ -53,15 +60,25 @@ port_attack_1 File:
 The port_attack_1 file will be used to create a port scanning attack of the form -sS, -sX, -sN and -sU
 (note that -sU is slower and less precise then the other methods)
 
-Run:
+Running File:
 # python3 [path]/Detection.py
 
 The user will be promoted to enter there choice of port scanning methods, "TCP_sS", "TCP_sX", 'TCP_sN', 'UDP_U'
 Select one from the list by typing its name.
 Then the user will be promoted to enter a min and max port which must follow: "0 < min port < max port < 65536"
 The script will then initiate a port scan attack of the chosen method directed at the specified range ports.
+The open or filtered ports will be printed out on the screen depending on the range defined by the user. This will
+indicate a successful run.
 
 #######################################################################################
 
+SYN_attack_1.py File:
+The SYN_attack_1.py file is used to create a syn flood. There is no prompt for entry.
+The default Port is 80 (http) as it should be open To show the proof of concept.
+This can be changed within the script but the new port number must be an open port on the metasploitable VM.
 
+Running File:
+# python3 [path]/Detection.py
 
+After running the file a string describing the package recived by kali should represent a ACK-SYN (SA) indicating a
+successful run.

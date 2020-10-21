@@ -108,7 +108,7 @@ class Identification(Thread):
 
         self.port_check(null_com.des_port, r_com.des_port, icmp_com.icmp_code, time, '[TCP -sN]')
 
-        self.port_check(udp_com.des_port, r_com.des_port, icmp_com.icmp_code, time, '[UDP sU]')
+        self.port_check(udp_com.des_port, r_com.des_port, icmp_com.icmp_code, time, '[UDP -sU]')
 
     # Checks if conditions are violated to determine if is port scanning attacks.
     def port_check(self, sentP, recive1P, recive2P, time, TypeScan):
