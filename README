@@ -6,7 +6,7 @@ Date Modified: 21/10/2020
 #######################################################################################
 
 This repository is dedicated to performing SYN flooding and Port Scanning Attacks which will be detected in real time.
-Therefore if an attack takes place it will be indicated by the python script after a sufficent amount of packets are
+Therefore if an attack takes place it will be indicated by the python script after a sufficient amount of packets are
 sniffed.
 
 The repository should contain 6 files:
