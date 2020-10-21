@@ -118,7 +118,7 @@ class Identification(Thread):
 
             # Checking that there is no more than 20% of the total communication sent received by the same port
             if 0.2 > (sentP.count(self.common_port) / len(sentP)):
-
+                # Checking if the total amount of responses to the initial packet are over 70% of the communication
                 if (len(recive1P) + len(recive2P) / len(sentP)) > 0.7:
 
                     print(str("[") + str(time) + str("]") + "\t" + "Limit Exceeded, {} Scanning detected".format(
@@ -129,6 +129,9 @@ class Identification(Thread):
 
                 else:
                     logging.warning("Potential Port Scanning detected")
+            else:
+                print(str("[") + str(time) + str("]") + "\t" + "No Port scanning for {}".format(TypeScan))
+
         else:
             print(str("[") + str(time) + str("]") + "\t" + "No Port scanning for {}".format(TypeScan))
 
@@ -143,6 +146,8 @@ class Identification(Thread):
             self.check2 = set(self.New2).issubset(a_com.ack_num)  # is sa_com +1 in a_com
 
             self.common_port = max(set(s_com.des_port), key=s_com.des_port.count)  # finding the most common port
+
+            print(self.common_port)
 
             # if a great proportion (30%) of the syn packets are heading for the same port e.g 80.
             if 0.3 < (s_com.des_port.count(self.common_port) / len(s_com.des_port)):

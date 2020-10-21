@@ -1,5 +1,5 @@
 ###### Requirements without Version Specifiers ######
 scapy
-datetime
+DateTime
 logging
-threading
+threaded

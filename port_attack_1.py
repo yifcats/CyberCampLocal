@@ -1,7 +1,7 @@
 #! /usr/bin/python
 from scapy.all import *
 
-# This script performs Port scan attacks.
+# This script performs Port scan attacks using TPC and UDP methods.
 
 dst_ip = "10.0.2.19"  # metasploitable victim to port scanning
 src_port = RandShort()  # Random source port

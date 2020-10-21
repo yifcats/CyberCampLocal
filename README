@@ -1,4 +1,6 @@
-This repository is for performing SYN flooding and Port Scanning Attacks which will be detected.
+This repository is dedicated to performing SYN flooding and Port Scanning Attacks which will be detected.
+The repository should contain 6 files:
+Detection.py, port_attack_1.py, SYN_attack_1.py, README, requirements.txt and sniff1.log
 
 Writen by: Yiftach Cats
 Date Modified: 21/10/2020
@@ -30,14 +32,14 @@ which it did not initially create since we are using scapy this is necessary to 
 Running Sequences:
 
 Port scan attack proof of concept:
-# python3 [path]/Detection.py     ## run this in the terminal and chose 'eth0' as the interface
-# python3 [path]SYN_attack_1.py  ## on other terminal run this
+# python3 [path]/Detection.py     ## run this in shell and chose 'eth0' as the interface
+# python3 [path]SYN_attack_1.py  ## on other shell run this
 
 Stop both jobs before changing the attack. This can be done with Control + c.
 
 SYN Flood proof of concept:
-# python3 [path]Detection.py     ## run this in the terminal and chose 'eth0' as the interface
-# python3 [path]SYN_attack_1.py  ## on other terminal run this
+# python3 [path]Detection.py     ## run this in the shell and chose 'eth0' as the interface
+# python3 [path]SYN_attack_1.py  ## on other shell run this
 
 #######################################################################################
 Detection File:
@@ -58,7 +60,7 @@ type [TCP -sS], [TCP -sX], [TC -sN] and [UDP -sU] or if there is or isn't SYN Fl
 
 port_attack_1 File:
 The port_attack_1 file will be used to create a port scanning attack of the form -sS, -sX, -sN and -sU
-(note that -sU is slower and less precise then the other methods)
+(Note that -sU is slower and less precise then the other methods!)
 
 Running File:
 # python3 [path]/Detection.py
@@ -69,6 +71,7 @@ Then the user will be promoted to enter a min and max port which must follow: "0
 The script will then initiate a port scan attack of the chosen method directed at the specified range ports.
 The open or filtered ports will be printed out on the screen depending on the range defined by the user. This will
 indicate a successful run.
+(Note making min port <<< max port will allow enough data to make a confirmation that there is port scanning.)
 
 #######################################################################################
 
@@ -82,3 +85,15 @@ Running File:
 
 After running the file a string describing the package recived by kali should represent a ACK-SYN (SA) indicating a
 successful run.
+
+#######################################################################################
+
+sniff1.log File:
+The log file includes all TCP, UDP and ICMP packets on the interface chosen. This will be indicated with a [info].
+The suspicious activity will be logged with a [warning] (only when on interface is eth0)
+Confirmed attacks will be logged with [critical] (only when on interface is eth0)
+
+There is no need to run anything. The log file is created everytime the Detection file is run.
+
+To see the log:
+# cat [path]/sniff1.log
