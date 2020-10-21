@@ -1,14 +1,16 @@
-This repository is dedicated to performing SYN flooding and Port Scanning Attacks which will be detected in real time.
-Therefore if an attack takes place it will be indicated by the python script.
-When a sufficent amount of time/packets been passed/sent after the attack the alert will be switched off to show that
-the attack has stopped.
-
-
-The repository should contain 6 files:
-Detection.py, port_attack_1.py, SYN_attack_1.py, README, requirements.txt and sniff1.log
+#######################################################################################
+CyberCamp Project
 
 Writen by: Yiftach Cats
 Date Modified: 21/10/2020
+#######################################################################################
+
+This repository is dedicated to performing SYN flooding and Port Scanning Attacks which will be detected in real time.
+Therefore if an attack takes place it will be indicated by the python script after a sufficent amount of packets are
+sniffed.
+
+The repository should contain 6 files:
+Detection.py, port_attack_1.py, SYN_attack_1.py, README, requirements.txt and sniff1.log
 
 The attacks will be aimed at the metasploitable VM from the kali VM for the sake of the proof of concept
 Both VM must be turned on!
