@@ -47,7 +47,10 @@ class Identification(Thread):
         self.limit = 5  # triggering tool for SYN Flooding
 
     def run(self):  # Calling the function when initialising the class.
-        sniff(iface=self.Interface, prn=self.packet_handler)  # sniffing all packets in the interface.
+        try:
+            sniff(iface=self.Interface, prn=self.packet_handler)  # sniffing all packets in the interface.
+        except Exception as e:
+            print(e)
 
     def join(self, timeout=0):  # creating a stop for the sniffer
         self.stop_sniffer.set()
